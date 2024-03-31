@@ -7,7 +7,7 @@ if [ -z "$1" ]; then
 fi
 
 # Script parameters
-URL="http://128.110.217.55:8081"
+URL="http://node0:8081"
 DURATION="10s"
 SCRIPT_PATH="./scripts/hotel-reservation/mixed-workload_type_1.lua"
 
