@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# Check if a file name was provided
+if [ -z "$1" ]; then
+    echo "Please provide a file name for the results."
+    exit 1
+fi
+
+# Script parameters
+URL="http://128.110.217.55:8000"
+DURATION="10s"
+SCRIPT_PATH="./scripts/hotel-reservation/mixed-workload_type_1.lua"
+
+# Arrays of different numbers of threads, connections, and request rates
+THREADS=(8)
+CONNECTIONS=(200 400 600 800 1000)
+REQUEST_RATES=(100000)
+
+# File to store results, taken from the first script argument
+RESULT_FILE="$1"
+> $RESULT_FILE # Clear the result file before starting
+
+# Function to run wrk with specified parameters
+run_wrk() {
+    local thread=$1
+    local connections=$2
+    local rate=$3
+    echo "Running wrk with $thread threads, $connections connections, and $rate RPS..."
+    echo "-----------------------------------------------------------" >> $RESULT_FILE
+    echo "Test with $thread threads, $connections connections, $rate RPS" >> $RESULT_FILE
+    ./wrk -t$thread -c$connections -d$DURATION -R$rate -L -s $SCRIPT_PATH $URL >> $RESULT_FILE
+}
+
+# Loop over threads, connections, and request rates, running wrk for each combination
+for t in "${THREADS[@]}"; do
+    for c in "${CONNECTIONS[@]}"; do
+        for r in "${REQUEST_RATES[@]}"; do
+            run_wrk $t $c $r
+        done
+    done
+done
+
+echo "Benchmarking completed. Check the $RESULT_FILE for results."
+
